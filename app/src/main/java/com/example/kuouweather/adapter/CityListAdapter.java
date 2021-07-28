@@ -1,4 +1,4 @@
-package com.example.kuouweather;
+package com.example.kuouweather.adapter;
 
 import android.annotation.SuppressLint;
 import android.util.Log;
@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import com.example.kuouweather.R;
 import com.example.kuouweather.bean.City;
 import com.example.kuouweather.bean.County;
 import com.example.kuouweather.bean.Province;
@@ -22,7 +23,6 @@ public class CityListAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        Log.d("aaa", "getCount: " + list.size());
         return list.size();
     }
 
@@ -38,9 +38,8 @@ public class CityListAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        Log.d("aaa", "getView: ");
         @SuppressLint("ViewHolder")
-        View view = View.inflate(parent.getContext(),R.layout.list_item,null);
+        View view = View.inflate(parent.getContext(), R.layout.list_item,null);
         TextView tv = view.findViewById(R.id.name);
         tv.setText(list.get(position).getCityName());
         return view;

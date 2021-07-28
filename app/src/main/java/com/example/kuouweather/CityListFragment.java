@@ -1,16 +1,16 @@
 package com.example.kuouweather;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 
-import android.util.AttributeSet;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,6 +19,9 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import com.example.kuouweather.adapter.CityListAdapter;
+import com.example.kuouweather.adapter.CountyListAdapter;
+import com.example.kuouweather.adapter.ListAdapter;
 import com.example.kuouweather.bean.City;
 import com.example.kuouweather.bean.County;
 import com.example.kuouweather.bean.Province;
@@ -29,9 +32,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import lombok.SneakyThrows;
 import okhttp3.ResponseBody;
@@ -44,13 +47,50 @@ import static com.example.kuouweather.R.string.China;
 
 
 public class CityListFragment extends Fragment {
-    private String queryProvId;
-    private String queryCityId;
+    private Integer queryProvId;
+    private String choosePro;
+    private String chooseCity;
+    private Integer queryCityId;
     private String weatherId;
     private FragmentCityListBinding binding;
     private final List<Province> provinces = new ArrayList<>();
-    //    private final ListAdapter listAdapter = new ListAdapter(provinces);
-    private Context context;
+    private List<City> cities = new ArrayList<>();
+    private List<County> counties = new ArrayList<>();
+    private final Handler handler1 = new Handler(new Handler.Callback() {
+        @Override
+        public boolean handleMessage(@NonNull Message msg) {
+            cities = (List<City>) msg.obj;
+            binding.lvCity.setAdapter(new CityListAdapter(cities));
+            binding.lvCity.setOnItemClickListener((parent, view, position, id) -> {
+                queryCityId = cities.get(position).getCityID();
+                getCounty(queryProvId.toString(),queryCityId.toString());
+                chooseCity = cities.get(position).getCityName();
+                binding.title.setText(chooseCity);
+            });
+            binding.backBtn.setOnClickListener(v -> {
+                if (queryCityId != null)
+                binding.lvCity.setAdapter(new ListAdapter(provinces));
+            });
+            binding.title.setText(choosePro);
+            return false;
+        }
+    });
+
+    private final Handler handler2 = new Handler(new Handler.Callback() {
+        @Override
+        public boolean handleMessage(@NonNull Message msg) {
+            counties = (List<County>) msg.obj;
+            binding.lvCity.setAdapter(new CountyListAdapter(counties));
+            binding.lvCity.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    weatherId = counties.get(position).getWeatherID();
+                    getWeather(weatherId);
+                }
+            });
+            return false;
+        }
+    });
 
     public CityListFragment() {
 
@@ -59,40 +99,31 @@ public class CityListFragment extends Fragment {
     String TAG = "aaa";
 
     @Override
-    public void onAttach(@NonNull @NotNull Context context) {
-        super.onAttach(context);
-        this.context = context;
-    }
-
-    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d("aaa", "onCreate: ");
-//        Objects.requireNonNull(getActivity()).runOnUiThread(() -> listAdapter.notifyDataSetChanged());
     }
 
     @Override
     public View onCreateView(@NotNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         binding = FragmentCityListBinding.inflate(inflater);
-        Log.d(TAG, "onCreateView: ");
         try {
             getProvince();
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
         ListAdapter listAdapter = new ListAdapter(provinces);
         binding.lvCity.setAdapter(listAdapter);
         binding.lvCity.setOnItemClickListener((parent, view, position, id) -> {
-            queryProvId = String.valueOf(provinces.get(position).getProvinceID());
-            Log.d("aaa", "onItemClick: " + provinces.get(position).getProvinceName() +  ": id =  " + id + " proID: " + provinces.get(position).getProvinceID());
-            getCity(queryCityId);
+            queryProvId = provinces.get(position).getProvinceID();
+            Log.d("aaa", "onItemClick: " + provinces.get(position).getProvinceName() +  ": id =  " + id + " proID: " + provinces.get(position).getProvinceID() + "  " + queryProvId);
+            choosePro = provinces.get(position).getProvinceName();
+            binding.title.setText(choosePro);
+            getCity(queryProvId.toString());
         });
-
         binding.title.setText(China);
-//        Log.d(TAG, "onCreateView: " + provinces.size());
         return binding.getRoot();
+
     }
 
     private void getProvince() throws JSONException {
@@ -106,92 +137,24 @@ public class CityListFragment extends Fragment {
         }
 
     }
-//
-//    @Override
-//    public void onActivityCreated(@Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
-//        super.onActivityCreated(savedInstanceState);
-//        binding = FragmentCityListBinding.inflate(getLayoutInflater());
-//        Log.d(TAG, "onActivityCreated: ");
-//        binding.title.setText(China);
-//        getProvince();
-//    }
-//
-//    public void getProvince() {
-//            new Thread() {
-//                @Override
-//                public void run() {
-//                    Retrofit retrofit = new Retrofit.Builder()
-//                            .baseUrl("http://guolin.tech/api/china/")
-//                            .build();
-//                    HttpService httpService = retrofit.create(HttpService.class);
-//                    Call<ResponseBody> call = httpService.getProvinces();
-//                    call.enqueue(new Callback<ResponseBody>() {
-//                        @SneakyThrows
-//                        @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-//                        @Override
-//                        public void onResponse(@NotNull Call<ResponseBody> call, @NotNull Response<ResponseBody> response) {
-//                            if (response.isSuccessful()) {
-//                                assert response.body() != null;
-//                                String jsonResponse = response.body().string();
-//                                Log.d("aaa", "onResponse: " + jsonResponse);
-//                                JSONArray jsonArray = new JSONArray(jsonResponse);
-//                                Log.d("aaa", "onResponse: " + jsonArray.length());
-//                                for (int i = 0; i < jsonArray.length(); i++) {
-//                                    JSONObject jsonObject = jsonArray.getJSONObject(i);
-//                                    Province province = new Province(jsonObject.getString("name"), jsonObject.getInt("id"));
-//                                    provinces.add(province);
-//                                }
-//                                getActivity().runOnUiThread(new Runnable() {
-//                                    @Override
-//                                    public void run() {
-//                                        listAdapter.notifyDataSetChanged();
-//                                    }
-//                                });
-//                            }
-//                        }
-//                        @Override
-//                        public void onFailure(@NotNull Call<ResponseBody> call, @NotNull Throwable t) {
-//                            Log.d("aaa", "onFailure: " + "get province");
-//                            getProvince();
-//                        }
-//                    });
-//                }
-//            }.start();
-//        Log.d(TAG, "getProvince: " + provinces.size());
-//        listAdapter.notifyDataSetChanged();
-//
-//    }
-//
-    private void getWeather(String weatherId) {
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://guolin.tech/api/weather")
-                .build();
-        HttpService httpService = retrofit.create(HttpService.class);
-        Call<ResponseBody> call = httpService.getWeather(weatherId, "abc");
-        call.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(@NotNull Call<ResponseBody> call, @NotNull Response<ResponseBody> response) {
-                if (response.isSuccessful()) {
-                    assert response.body() != null;
-                    Log.d("aaa", "onResponse: " + response.body().toString());
-                }
-            }
-            @Override
-            public void onFailure(@NotNull Call<ResponseBody> call, @NotNull Throwable t) {
-                Log.d("aaa", "onFailure: " + "get weather");
-            }
-        });
 
+    private void getWeather(String weatherId) {
+        Log.d(TAG, "getWeather: " + weatherId);
+        Intent intent = new Intent(getContext(),WeatherActivity.class);
+        intent.putExtra("weatherID",weatherId);
+        startActivity(intent);
     }
 
     private void getCounty(String id_1,String id_2) {
-        List<County> counties = new ArrayList<>();
-        String url = "http://guolin.tech/api/china" + "/" + id_1 + "/" + id_2 + "/";
+        String url = "http://guolin.tech/api/china/";
+
+
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(url)
                 .build();
+        Log.d(TAG, "getCounty: " + url);
         HttpService httpService = retrofit.create(HttpService.class);
-        Call<ResponseBody> call = httpService.getCounties(queryProvId,queryCityId);
+        Call<ResponseBody> call = httpService.getCounties(queryProvId.toString(),queryCityId.toString());
         call.enqueue(new Callback<ResponseBody>() {
             @SneakyThrows
             @RequiresApi(api = Build.VERSION_CODES.KITKAT)
@@ -199,50 +162,22 @@ public class CityListFragment extends Fragment {
             public void onResponse(@NotNull Call<ResponseBody> call, @NotNull Response<ResponseBody> response) {
                 if (response.isSuccessful()) {
                     String jsonResponse = response.body().string();
+                    Log.d(TAG, "onResponse: " + jsonResponse);
                     JSONArray jsonArray = new JSONArray(jsonResponse);
                     for (int i = 0; i < jsonArray.length(); i++) {
                         JSONObject jsonObject = jsonArray.getJSONObject(i);
                         County county = new County(jsonObject.getString("name"), jsonObject.getString("weather_id"));
                         counties.add(county);
                     }
-                    CountyListFragment countyListFragment = new CountyListFragment();
-                    countyListFragment.binding.lvCounty.setAdapter(new BaseAdapter() {
-                        @Override
-                        public int getCount() {
-                            return counties.size();
-                        }
-
-                        @Override
-                        public Object getItem(int position) {
-                            return counties.get(position);
-                        }
-
-                        @Override
-                        public long getItemId(int position) {
-                            return position;
-                        }
-
-                        @Override
-                        public View getView(int position, View convertView, ViewGroup parent) {
-                            View countyView = View.inflate(parent.getContext(),R.layout.list_item,null);
-                            TextView tv = countyView.findViewById(R.id.name);
-                            tv.setText(counties.get(position).getCountyName());
-                            return countyView;
-                        }
-                    });
-                    countyListFragment.binding.lvCounty.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                        @Override
-                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                            weatherId = counties.get(position).getWeatherID();
-                            getWeather(weatherId);
-                        }
-                    });
+                    Message message = new Message();
+                    message.obj = counties;
+                    handler2.sendMessage(message);
                 }
             }
             @Override
             public void onFailure(@NotNull Call<ResponseBody> call, @NotNull Throwable t) {
                 Log.d("aaa", "onFailure: " + "get county");
-                getCounty(queryProvId,queryCityId);
+                getCounty(queryProvId.toString(),queryCityId.toString());
             }
         });
     }
@@ -250,12 +185,13 @@ public class CityListFragment extends Fragment {
 
     public void getCity(String id) {
         List<City> cities = new ArrayList<>();
-        String url = "http://guolin.tech/api/china" + "/" + id + "/";
+        String url = "http://guolin.tech/api/china/";
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(url)
                 .build();
         HttpService httpService = retrofit.create(HttpService.class);
         Call<ResponseBody> call = httpService.getCities(id);
+
         call.enqueue(new Callback<ResponseBody>() {
             @SneakyThrows
             @RequiresApi(api = Build.VERSION_CODES.KITKAT)
@@ -264,49 +200,22 @@ public class CityListFragment extends Fragment {
                 if (response.isSuccessful()) {
                     assert response.body() != null;
                     String jsonResponse = response.body().string();
+                    Log.d(TAG, "onResponse: json" + jsonResponse + "  " + response.body().toString());
                     JSONArray jsonArray = new JSONArray(jsonResponse);
                     for (int i = 0; i < jsonArray.length(); i++) {
                         JSONObject jsonObject = jsonArray.getJSONObject(i);
                         City city = new City(jsonObject.getString("name"), jsonObject.getInt("id"));
                         cities.add(city);
                     }
-
-                    binding.lvCity.setAdapter(new BaseAdapter() {
-
-                        @Override
-                        public int getCount() {
-                            return cities.size();
-                        }
-
-                        @Override
-                        public Object getItem(int position) {
-                            return cities.get(position);
-                        }
-
-                        @Override
-                        public long getItemId(int position) {
-                            return position;
-                        }
-
-                        @Override
-                        public View getView(int position, View convertView, ViewGroup parent) {
-                            View city_view = View.inflate(parent.getContext(),R.layout.list_item,null);
-                            TextView tv = city_view.findViewById(R.id.name);
-                            tv.setText(cities.get(position).getCityName());
-                            return city_view;
-                        }
-                    });
-                    binding.lvCity.setOnItemClickListener((parent, view, position, id1) -> {
-                        Log.d(TAG, "onResponse: " + position);
-                        queryCityId = String.valueOf(cities.get(position).getCityID());
-//                        getCounty(queryProvId,queryCityId);
-                    });
+                    Message message = new Message();
+                    message.obj = cities;
+                    handler1.sendMessage(message);
                 }
             }
             @Override
             public void onFailure(@NotNull Call<ResponseBody> call, @NotNull Throwable t) {
                 Log.d("aaa", "onFailure: " + "get city");
-                getCity(queryProvId);
+                getCity(queryProvId.toString());
             }
         });
     }
