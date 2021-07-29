@@ -1,12 +1,16 @@
 package com.example.kuouweather.bean;
 
-public class City {
-    private String cityName;
-    private int cityID;
+import org.litepal.crud.LitePalSupport;
 
-    public City(String cityName, int cityID) {
+public class City extends LitePalSupport {
+    private String cityName;
+    private String cityID;
+    private String proID;
+
+    public City(String cityName, String cityID, String proID) {
         this.cityName = cityName;
         this.cityID = cityID;
+        this.proID = proID;
     }
 
     public String getCityName() {
@@ -17,11 +21,19 @@ public class City {
         this.cityName = cityName;
     }
 
-    public int getCityID() {
+    public String getCityID() {
         return cityID;
     }
 
-    public void setCityID(int cityID) {
+    public void setCityID(String cityID) {
         this.cityID = cityID;
+    }
+
+    public String getProID() {
+        return proID;
+    }
+
+    public void setProID(String proID) {
+        this.proID = proID;
     }
 }

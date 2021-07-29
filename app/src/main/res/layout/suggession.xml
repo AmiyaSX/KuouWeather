@@ -3,31 +3,35 @@
     android:layout_width="match_parent"
     android:layout_height="210dp"
     android:orientation="vertical">
+
     <TextView
-        android:layout_marginTop="10dp"
         android:layout_width="match_parent"
         android:layout_height="30dp"
+        android:layout_marginTop="10dp"
         android:text="生活建议"
         android:textColor="@color/black"
-        android:textSize="20sp"/>
+        android:textSize="20sp" />
+
     <TextView
-        android:layout_marginTop="10dp"
         android:id="@+id/comf"
-        android:textSize="15sp"
-        android:textColor="@color/black"
         android:layout_width="match_parent"
-        android:layout_height="60dp"/>
+        android:layout_height="60dp"
+        android:layout_marginTop="10dp"
+        android:textColor="@color/black"
+        android:textSize="20sp" />
+
     <TextView
         android:id="@+id/sport"
-        android:textSize="15sp"
-        android:textColor="@color/black"
         android:layout_width="match_parent"
-        android:layout_height="60dp"/>
+        android:layout_height="60dp"
+        android:textColor="@color/black"
+        android:textSize="20sp" />
+
     <TextView
         android:id="@+id/cw"
-        android:textSize="15sp"
-        android:textColor="@color/black"
         android:layout_width="match_parent"
-        android:layout_height="60dp"/>
+        android:layout_height="60dp"
+        android:textColor="@color/black"
+        android:textSize="20sp" />
 
 </LinearLayout>

@@ -1,11 +1,13 @@
 package com.example.kuouweather.bean;
 
 
-public class Province {
-    private String provinceName;
-    private int provinceID;
+import org.litepal.crud.LitePalSupport;
 
-    public Province(String provinceName, int provinceID) {
+public class Province extends LitePalSupport {
+    private String provinceName;
+    private String provinceID;
+
+    public Province(String provinceName, String provinceID) {
         this.provinceName = provinceName;
         this.provinceID = provinceID;
     }
@@ -18,11 +20,12 @@ public class Province {
         this.provinceName = provinceName;
     }
 
-    public int getProvinceID() {
+    public String getProvinceID() {
         return provinceID;
     }
 
-    public void setProvinceID(int provinceID) {
+    public void setProvinceID(String provinceID) {
         this.provinceID = provinceID;
     }
+
 }

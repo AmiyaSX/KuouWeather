@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<litepal>
+    <!--数据库名称-->
+    <dbname value="KuouWeather" />
+    <!--数据库版本-->
+    <version value="2" />
+
+    <!--映射模型-->
+    <list>
+        <!--添加实体类，此处必须映射完整路径-->
+        <mapping class="com.example.kuouweather.bean.WeatherInfo" />
+        <mapping class="com.example.kuouweather.bean.Province" />
+        <mapping class="com.example.kuouweather.bean.City" />
+        <mapping class="com.example.kuouweather.bean.County" />
+        <mapping class="com.example.kuouweather.bean.DailyForecast" />
+
+    </list>
+</litepal>

@@ -39,7 +39,7 @@ public class CityListAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         @SuppressLint("ViewHolder")
-        View view = View.inflate(parent.getContext(), R.layout.list_item,null);
+        View view = View.inflate(parent.getContext(), R.layout.list_item, null);
         TextView tv = view.findViewById(R.id.name);
         tv.setText(list.get(position).getCityName());
         return view;

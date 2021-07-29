@@ -3,27 +3,36 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".WeatherActivity"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:context=".WeatherActivity">
+
     <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
         android:id="@+id/bing_img"
-        android:scaleType="centerCrop"/>
-    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scrollbars="none"
-        android:overScrollMode="never">
+        android:scaleType="centerCrop" />
+
+    <ScrollView
+        android:id="@+id/mscrollview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:overScrollMode="never"
+        android:scrollbars="none">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
-            <include layout="@layout/head_title"/>
-            <include layout="@layout/tem_card"/>
-            <include layout="@layout/forecast_head"/>
-            <include layout="@layout/weather_quality"/>
-            <include layout="@layout/suggession"/>
+
+            <include layout="@layout/head_title" />
+
+            <include layout="@layout/tem_card" />
+
+            <include layout="@layout/forecast_head" />
+
+            <include layout="@layout/weather_quality" />
+
+            <include layout="@layout/suggession" />
         </LinearLayout>
 
     </ScrollView>

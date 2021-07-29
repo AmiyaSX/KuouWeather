@@ -1,12 +1,16 @@
 package com.example.kuouweather.bean;
 
-public class County {
+import org.litepal.crud.LitePalSupport;
+
+public class County extends LitePalSupport {
     private String countyName;
     private String weatherID;
+    private String cityID;
 
-    public County(String countyName, String weatherID) {
+    public County(String countyName, String weatherID, String cityID) {
         this.countyName = countyName;
         this.weatherID = weatherID;
+        this.cityID = cityID;
     }
 
 
@@ -24,5 +28,13 @@ public class County {
 
     public void setWeatherID(String weatherID) {
         this.weatherID = weatherID;
+    }
+
+    public String getCityID() {
+        return cityID;
+    }
+
+    public void setCityID(String cityID) {
+        this.cityID = cityID;
     }
 }

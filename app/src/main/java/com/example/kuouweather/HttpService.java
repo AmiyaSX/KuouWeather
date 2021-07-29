@@ -11,9 +11,8 @@ import retrofit2.http.QueryMap;
 
 public interface HttpService {
 
-//    @GET("http://guolin.tech/api/weather?cityid={weather}&key={KET}/")
     @GET("weather")
-    Call<ResponseBody> getWeather(@QueryMap Map<String,String> queryParams);
+    Call<ResponseBody> getWeather(@QueryMap Map<String, String> queryParams);
 
     @GET("http://guolin.tech/api/china/")
     Call<ResponseBody> getProvinces();

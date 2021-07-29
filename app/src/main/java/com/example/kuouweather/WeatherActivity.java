@@ -11,6 +11,7 @@ import android.os.Message;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -37,7 +38,6 @@ import retrofit2.Retrofit;
 public class WeatherActivity extends AppCompatActivity {
     private String weatherID;
     private String urlImage;
-    private List<Weather.HeWeatherDTO.DailyForecastDTO> dailyForecasts = new ArrayList<>();
     private TextView title;
     private TextView time;
     private TextView temperature;
@@ -49,6 +49,7 @@ public class WeatherActivity extends AppCompatActivity {
     private TextView cw;
     private ListView listView;
     private ImageView imageView;
+    private ScrollView scrollView;
     String TAG = "aaa";
     private final Handler handler = new Handler(msg -> {
         Weather weather = (Weather) msg.obj;
@@ -56,29 +57,21 @@ public class WeatherActivity extends AppCompatActivity {
         return false;
     });
 
-    @SuppressLint("SetTextI18n")
-    private void showWeather(Weather weather) {
-        Weather.HeWeatherDTO heWeather = weather.getHeWeather().get(0);
-        Log.d(TAG, "showWeather: ");
-        title.setText(heWeather.getBasic().getLocation());
-        Date date = new Date();
-        time.setText(date.toString());
-        temperature.setText(heWeather.getNow().getTmp() + "℃");
-        weatherTxt.setText(heWeather.getNow().getCondTxt());
-        aqi.setText(heWeather.getAqi().getCity().getAqi());
-        pm.setText(heWeather.getAqi().getCity().getPm25());
-        comf.setText("舒适度：" + heWeather.getSuggestion().getComf().getTxt());
-        sport.setText("运动建议：" + heWeather.getSuggestion().getSport().getTxt());
-        cw.setText("洗车指数：" + heWeather.getSuggestion().getCw().getTxt());
-        listView.setAdapter(new WeatherListAdapter(dailyForecasts));
-
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         com.example.kuouweather.databinding.ActivityWeatherBinding binding = ActivityWeatherBinding.inflate(getLayoutInflater());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_weather);
+        initView();
+        Log.d(TAG, "onCreate: " + weatherID);
+        loadImage();
+        getWeather(weatherID);
+
+    }
+
+    private void initView() {
+        scrollView = findViewById(R.id.mscrollview);
         title = findViewById(R.id.weather_title);
         time = findViewById(R.id.time);
         temperature = findViewById(R.id.temperature);
@@ -92,10 +85,6 @@ public class WeatherActivity extends AppCompatActivity {
         Intent intent = getIntent();
         weatherID = intent.getStringExtra("weatherID");
         imageView = findViewById(R.id.bing_img);
-        Log.d(TAG, "onCreate: " + weatherID);
-        loadImage();
-        getWeather(weatherID);
-
     }
 
     private void loadImage() {
@@ -110,7 +99,7 @@ public class WeatherActivity extends AppCompatActivity {
             @Override
             public void onResponse(@NotNull Call<ResponseBody> call, @NotNull Response<ResponseBody> response) {
                 try {
-                     urlImage = response.body().string();
+                    urlImage = response.body().string();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -130,11 +119,11 @@ public class WeatherActivity extends AppCompatActivity {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("http://guolin.tech/api/")
                 .build();
-        Log.d(TAG, "getWeather: " + "http://guolin.tech/api/weather?cityid=" + weatherID + "&key=b2fc2389874847f999b25c4c4b933d68/");
+        Log.d(TAG, "getWeather: " + "http://guolin.tech/api/weather?cityid=" + weatherID + getString(R.string.key));
         HttpService httpService = retrofit.create(HttpService.class);
         HashMap<String, String> hashMap = new HashMap<>();
         hashMap.put("cityid", weatherID);
-        hashMap.put("key", "b2fc2389874847f999b25c4c4b933d68");
+        hashMap.put("key", getString(R.string.key));
         Call<ResponseBody> call = httpService.getWeather(hashMap);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
@@ -149,7 +138,6 @@ public class WeatherActivity extends AppCompatActivity {
                         Weather weather = gson.fromJson(jsonResponse, Weather.class);
                         if (weather.getHeWeather() == null)
                             Log.d(TAG, "onResponse: " + "gson.fromJson fail");
-                        dailyForecasts = weather.getHeWeather().get(0).getDailyForecast();
                         Log.d(TAG, "onResponse: " + weather.getHeWeather().get(0).getBasic().getCid() + "  地点： " + weather.getHeWeather().get(0).getBasic().getLocation());
                         Message message = new Message();
                         message.obj = weather;
@@ -166,5 +154,24 @@ public class WeatherActivity extends AppCompatActivity {
                 getWeather(weatherID);
             }
         });
+    }
+
+    @SuppressLint("SetTextI18n")
+    private void showWeather(Weather weather) {
+        Weather.HeWeatherDTO heWeather = weather.getHeWeather().get(0);
+        Log.d(TAG, "showWeather: ");
+        scrollView.smoothScrollTo(0, 0);
+        title.setText(heWeather.getBasic().getLocation());
+        Date date = new Date();
+        time.setText(date.toString());
+        temperature.setText(heWeather.getNow().getTmp() + "℃");
+        weatherTxt.setText(heWeather.getNow().getCondTxt());
+        aqi.setText(heWeather.getAqi().getCity().getAqi());
+        pm.setText(heWeather.getAqi().getCity().getPm25());
+        comf.setText("舒适度：" + heWeather.getSuggestion().getComf().getTxt());
+        sport.setText("运动建议：" + heWeather.getSuggestion().getSport().getTxt());
+        cw.setText("洗车指数：" + heWeather.getSuggestion().getCw().getTxt());
+        listView.setAdapter(new WeatherListAdapter(weather.getHeWeather().get(0).getDailyForecast()));
+
     }
 }

@@ -6,8 +6,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+
 import com.example.kuouweather.bean.Weather;
 import com.example.kuouweather.databinding.ForecastItemBinding;
+
 import java.util.List;
 
 public class WeatherListAdapter extends BaseAdapter {
@@ -20,7 +22,7 @@ public class WeatherListAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        Log.d("aaa", "getCount: " +dailyForecastList.size());
+        Log.d("aaa", "getCount: " + dailyForecastList.size());
         return dailyForecastList.size();
     }
 
