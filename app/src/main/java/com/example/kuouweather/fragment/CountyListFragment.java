@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -42,6 +43,7 @@ public class CountyListFragment extends Fragment {
     private final String selectProID;
     private String weatherId;
     private List<County> counties = new ArrayList<>();
+    private int cnt = 0;
 
     public CountyListFragment(String selectCityID, String selectProID) {
         this.selectCityID = selectCityID;
@@ -79,6 +81,15 @@ public class CountyListFragment extends Fragment {
     }
 
     private void getCounty() {
+        if (cnt<5)  {
+            cnt++;
+            Toast.makeText(requireContext(),"数据拉取中，请等待",Toast.LENGTH_SHORT).show();
+        }
+        else {
+            cnt++;
+            Toast.makeText(requireContext(),"拉不到数据啊QAQ",Toast.LENGTH_SHORT).show();
+        }
+
         if (getCountyInDatabase()) {
             binding.lvCounty.setAdapter(new CountyListAdapter(counties));
             return;
@@ -115,6 +126,7 @@ public class CountyListFragment extends Fragment {
             @Override
             public void onFailure(@NotNull Call<ResponseBody> call, @NotNull Throwable t) {
                 Log.d(TAG, "onFailure: " + "getCounty");
+                Toast.makeText(requireContext(),"数据拉取失败，正在重新请求",Toast.LENGTH_SHORT).show();
                 getCounty();
             }
         });

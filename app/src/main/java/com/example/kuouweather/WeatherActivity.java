@@ -13,11 +13,13 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.kuouweather.adapter.WeatherListAdapter;
 import com.example.kuouweather.bean.Weather;
 import com.example.kuouweather.databinding.ActivityWeatherBinding;
+import com.github.rahatarmanahmed.cpv.CircularProgressView;
 import com.google.gson.Gson;
 
 import org.jetbrains.annotations.NotNull;
@@ -50,6 +52,7 @@ public class WeatherActivity extends AppCompatActivity {
     private ListView listView;
     private ImageView imageView;
     private ScrollView scrollView;
+    private CircularProgressView progressView;
     String TAG = "aaa";
     private final Handler handler = new Handler(msg -> {
         Weather weather = (Weather) msg.obj;
@@ -85,6 +88,8 @@ public class WeatherActivity extends AppCompatActivity {
         Intent intent = getIntent();
         weatherID = intent.getStringExtra("weatherID");
         imageView = findViewById(R.id.bing_img);
+        progressView = findViewById(R.id.progress_view);
+        progressView.startAnimation();
     }
 
     private void loadImage() {
@@ -172,6 +177,6 @@ public class WeatherActivity extends AppCompatActivity {
         sport.setText("运动建议：" + heWeather.getSuggestion().getSport().getTxt());
         cw.setText("洗车指数：" + heWeather.getSuggestion().getCw().getTxt());
         listView.setAdapter(new WeatherListAdapter(weather.getHeWeather().get(0).getDailyForecast()));
-
+        progressView.stopAnimation();
     }
 }

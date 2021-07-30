@@ -2,17 +2,15 @@
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="320dp"
-    android:layout_marginTop="50dp"
     android:layout_gravity="center_horizontal"
-    android:layout_height="250dp"
+    android:layout_height="200dp"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     app:cardCornerRadius="20dp"
     android:orientation="vertical"
     android:alpha="250">
     <TextView
-        android:layout_marginVertical="20dp"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
+        android:layout_height="25dp"
         android:background="@color/blue"
         android:text="空气质量"
         android:textColor="@color/black"
@@ -21,7 +19,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="70dp"
+        android:layout_marginTop="20dp"
         android:orientation="horizontal"
         android:outlineSpotShadowColor="@color/blue">
 
@@ -29,13 +27,14 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
+
             android:orientation="vertical">
 
             <TextView
                 android:id="@+id/aqi"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="8"
+                android:layout_weight="2"
                 android:gravity="center_horizontal"
                 android:text="100"
                 android:textStyle="italic"
@@ -47,7 +46,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="7"
+                android:layout_weight="1"
                 android:gravity="center_horizontal"
                 android:text="AQI指数"
                 android:textAlignment="center"
@@ -66,7 +65,7 @@
                 android:id="@+id/pm2.5"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="8"
+                android:layout_weight="2"
                 android:gravity="center_horizontal"
                 android:text="100"
                 android:textStyle="italic"
@@ -78,7 +77,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="7"
+                android:layout_weight="1"
                 android:gravity="center_horizontal"
                 android:text="PM2.5指数"
                 android:textAlignment="center"

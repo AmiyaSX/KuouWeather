@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.example.kuouweather.HttpService;
 import com.example.kuouweather.MainActivity;
@@ -41,6 +42,7 @@ public class CityListFragment extends Fragment {
     private String selectCityID;
     private final MainActivity.ChangeToCountyFragment changeToCountyFragment;
     private List<City> cities = new ArrayList<>();
+    private int cnt = 0;
 
     public CityListFragment(String selectProID, MainActivity.ChangeToCountyFragment changeToCountyFragment) {
         this.selectProID = selectProID;
@@ -80,6 +82,14 @@ public class CityListFragment extends Fragment {
     }
 
     public void getCity(String id) {
+        if (cnt<5)  {
+            cnt++;
+            Toast.makeText(requireContext(),"数据拉取中，请等待",Toast.LENGTH_SHORT).show();
+        }
+        else {
+            cnt++;
+            Toast.makeText(requireContext(),"拉不到数据啊QAQ",Toast.LENGTH_SHORT).show();
+        }
         if (getCityInDatabase()) {
             binding.lvCity.setAdapter(new CityListAdapter(cities));
             return;
@@ -116,6 +126,7 @@ public class CityListFragment extends Fragment {
             @Override
             public void onFailure(@NotNull Call<ResponseBody> call, @NotNull Throwable t) {
                 Log.d("aaa", "onFailure: " + "get city");
+                Toast.makeText(requireContext(),"数据拉取失败，正在重新请求",Toast.LENGTH_SHORT).show();
                 getCity(selectProID);
             }
         });
