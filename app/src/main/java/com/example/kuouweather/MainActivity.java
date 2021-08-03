@@ -4,7 +4,13 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.app.ActionBar;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
+import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 
 import com.example.kuouweather.fragment.CityListFragment;
 import com.example.kuouweather.fragment.CountyListFragment;

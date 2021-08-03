@@ -39,11 +39,14 @@ import retrofit2.Retrofit;
 
 public class CountyListFragment extends Fragment {
     private FragmentCountyListBinding binding;
-    private final String selectCityID;
-    private final String selectProID;
+    private String selectCityID;
+    private String selectProID;
     private String weatherId;
     private List<County> counties = new ArrayList<>();
     private int cnt = 0;
+
+    public CountyListFragment() {
+    }
 
     public CountyListFragment(String selectCityID, String selectProID) {
         this.selectCityID = selectCityID;

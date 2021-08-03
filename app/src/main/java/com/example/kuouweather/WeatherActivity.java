@@ -1,31 +1,34 @@
 package com.example.kuouweather;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
+import androidx.fragment.app.FragmentActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.example.kuouweather.adapter.WeatherListAdapter;
+import com.example.kuouweather.adapter.RecyclerViewAdapter;
 import com.example.kuouweather.bean.Weather;
-import com.example.kuouweather.databinding.ActivityWeatherBinding;
 import com.github.rahatarmanahmed.cpv.CircularProgressView;
 import com.google.gson.Gson;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -37,7 +40,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
-public class WeatherActivity extends AppCompatActivity {
+public class WeatherActivity extends FragmentActivity {
     private String weatherID;
     private String urlImage;
     private TextView title;
@@ -49,10 +52,13 @@ public class WeatherActivity extends AppCompatActivity {
     private TextView comf;
     private TextView sport;
     private TextView cw;
-    private ListView listView;
+    private RecyclerView recyclerView;
     private ImageView imageView;
     private ScrollView scrollView;
+    private CardView cardView;
+    private CardView cardForeCast;
     private CircularProgressView progressView;
+    private List<Weather.HeWeatherDTO.DailyForecastDTO> dailyForecasts;
     String TAG = "aaa";
     private final Handler handler = new Handler(msg -> {
         Weather weather = (Weather) msg.obj;
@@ -63,7 +69,6 @@ public class WeatherActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        com.example.kuouweather.databinding.ActivityWeatherBinding binding = ActivityWeatherBinding.inflate(getLayoutInflater());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_weather);
         initView();
@@ -84,12 +89,34 @@ public class WeatherActivity extends AppCompatActivity {
         comf = findViewById(R.id.comf);
         sport = findViewById(R.id.sport);
         cw = findViewById(R.id.cw);
-        listView = findViewById(R.id.lv_weather);
+//        listView = findViewById(R.id.lv_weather);
         Intent intent = getIntent();
         weatherID = intent.getStringExtra("weatherID");
         imageView = findViewById(R.id.bing_img);
         progressView = findViewById(R.id.progress_view);
         progressView.startAnimation();
+        cardView = findViewById(R.id.card_suggestion);
+        recyclerView = findViewById(R.id.lv_weather);
+        cardView.getBackground().setAlpha(100);
+        cardForeCast = findViewById(R.id.card);
+        cardForeCast.getBackground().setAlpha(100);
+//        ActionBar actionBar = getActionBar();
+//        actionBar.hide();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Window window = getWindow();
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            /*状态栏设置透明*/
+            window.setStatusBarColor(Color.TRANSPARENT);
+            int visibility = window.getDecorView().getSystemUiVisibility();
+            /*布局内容全屏显示*/
+            visibility |= View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
+            visibility |= View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
+            /*隐藏虚拟导航栏*/
+            visibility |= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
+            window.getDecorView().setSystemUiVisibility(visibility);
+        }
+
     }
 
     private void loadImage() {
@@ -176,7 +203,11 @@ public class WeatherActivity extends AppCompatActivity {
         comf.setText("舒适度：" + heWeather.getSuggestion().getComf().getTxt());
         sport.setText("运动建议：" + heWeather.getSuggestion().getSport().getTxt());
         cw.setText("洗车指数：" + heWeather.getSuggestion().getCw().getTxt());
-        listView.setAdapter(new WeatherListAdapter(weather.getHeWeather().get(0).getDailyForecast()));
+        dailyForecasts = weather.getHeWeather().get(0).getDailyForecast();
+        recyclerView.setAdapter(new RecyclerViewAdapter(recyclerView,dailyForecasts));
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(linearLayoutManager);
         progressView.stopAnimation();
     }
+
 }

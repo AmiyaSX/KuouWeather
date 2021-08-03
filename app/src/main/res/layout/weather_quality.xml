@@ -5,18 +5,22 @@
     android:layout_marginTop="50dp"
     android:layout_gravity="center_horizontal"
     android:layout_height="250dp"
+    android:id="@+id/card"
+    app:cardElevation="5dp"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     app:cardCornerRadius="20dp"
     android:orientation="vertical"
     android:alpha="250">
     <TextView
-        android:layout_marginVertical="20dp"
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:background="@color/blue"
         android:text="空气质量"
-        android:textColor="@color/black"
-        android:textSize="20sp" />
+        android:paddingTop="5dp"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        android:gravity="center_horizontal" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -50,6 +54,7 @@
                 android:layout_weight="7"
                 android:gravity="center_horizontal"
                 android:text="AQI指数"
+                android:textStyle="bold"
                 android:textAlignment="center"
                 android:textColor="@color/black" />
 
@@ -81,6 +86,7 @@
                 android:layout_weight="7"
                 android:gravity="center_horizontal"
                 android:text="PM2.5指数"
+                android:textStyle="bold"
                 android:textAlignment="center"
                 android:textColor="@color/black" />
 

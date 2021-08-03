@@ -4,8 +4,8 @@ plugins {
 
 android {
     signingConfigs {
-        debug {
-            storeFile file('C:\\Users\\sucy\\Desktop\\Almoon.jks')
+        release {
+        storeFile file('C:\\Users\\sucy\\Desktop\\Almoon.jks')
             storePassword '784748497'
             keyAlias 'Almoon'
             keyPassword '784748497'
@@ -22,16 +22,9 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        signingConfig signingConfigs.release
     }
 
-//    signingConfigs {
-//        release {
-//            storeFile file("kuouweather.jks")
-//            storePassword "2668590277"
-//            keyAlias "kuou"
-//            keyPassword "2668590277"
-//        }
-//    }
 
     dataBinding {
         enabled = true
@@ -41,23 +34,20 @@ android {
         enabled = true
     }
 
-//    buildTypes {
-//        release {
-//            // 不显示Log
-//            buildConfigField "boolean", "LOG_DEBUG", "false"
-//            minifyEnabled false
-//            //Zipalign优化
-//            zipAlignEnabled true
-//            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-//            signingConfig signingConfigs.release
-//        }
-//    }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
     buildFeatures {
         viewBinding true
+    }
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+        }
+        debug {
+            signingConfig signingConfigs.debug
+        }
     }
 }
 

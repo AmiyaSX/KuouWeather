@@ -53,9 +53,12 @@ public class ProvinceListFragment extends Fragment {
     private String queryProvId;
     private String choosePro;
     private String selectProID;
-    private final MainActivity.ChangeToCityFragment changeToCityFragment;
+    private MainActivity.ChangeToCityFragment changeToCityFragment;
     private FragmentProvinceListBinding binding;
     private List<Province> provinces = new ArrayList<>();
+
+    public ProvinceListFragment() {
+    }
 
     public ProvinceListFragment(MainActivity.ChangeToCityFragment changeToCityFragment) {
         this.changeToCityFragment = changeToCityFragment;

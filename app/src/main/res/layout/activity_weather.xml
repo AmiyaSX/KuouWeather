@@ -12,6 +12,7 @@
         android:id="@+id/progress_view"
         android:layout_width="40dp"
         android:layout_height="40dp"
+        android:layout_gravity="center"
         app:cpv_animAutostart="true"
         app:cpv_indeterminate="true" />
 
@@ -44,7 +45,7 @@
 
             <include layout="@layout/weather_quality" />
 
-            <include layout="@layout/suggession" />
+            <include layout="@layout/suggestion" />
         </LinearLayout>
 
     </ScrollView>
