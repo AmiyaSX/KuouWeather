@@ -1,16 +1,17 @@
 package com.example.kuouweather.bean;
 
 
+import com.google.gson.annotations.SerializedName;
+
 import org.litepal.crud.LitePalSupport;
 
 public class Province extends LitePalSupport {
+    /*增加Gson转换注解*/
+    @SerializedName("name")
     private String provinceName;
+    @SerializedName("id")
     private String provinceID;
 
-    public Province(String provinceName, String provinceID) {
-        this.provinceName = provinceName;
-        this.provinceID = provinceID;
-    }
 
     public String getProvinceName() {
         return provinceName;

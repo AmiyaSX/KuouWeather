@@ -28,12 +28,14 @@ public class MainActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
 
         LitePal.getDatabase();
+        LitePal.deleteAll("province");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         showProvinceFragment();
     }
 
     private void showProvinceFragment() {
+        /*这里已经回答过了，持有fragment应该没什么关系，方便进行界面转换，但是要小心fragment传参构造的坑*/
         FragmentTransaction ft = fm.beginTransaction();
         provinceListFragment = ProvinceListFragment.newInstance(() -> {
             FragmentTransaction ft1 = fm.beginTransaction();

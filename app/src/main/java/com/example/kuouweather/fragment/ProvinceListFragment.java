@@ -10,41 +10,39 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.example.kuouweather.HttpService;
 import com.example.kuouweather.MainActivity;
 import com.example.kuouweather.adapter.ListAdapter;
 import com.example.kuouweather.bean.Province;
 import com.example.kuouweather.databinding.FragmentProvinceListBinding;
+import com.example.kuouweather.util.HttpUtil;
 
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.litepal.LitePal;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 import lombok.SneakyThrows;
-import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
 
 
 public class ProvinceListFragment extends Fragment {
+
     private String queryProvId;
+
     private String selectProID;
+
     private int requireCnt;
+
     private MainActivity.ChangeToCityFragment changeToCityFragment;
+
     private FragmentProvinceListBinding binding;
+
     private List<Province> provinces = new ArrayList<>();
 
-    public ProvinceListFragment() {
-    }
 
     public static ProvinceListFragment newInstance(MainActivity.ChangeToCityFragment changeToCityFragment) {
         ProvinceListFragment provinceListFragment = new ProvinceListFragment();
@@ -61,12 +59,8 @@ public class ProvinceListFragment extends Fragment {
     public View onCreateView(@NotNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         binding = FragmentProvinceListBinding.inflate(inflater);
-        try {
-            requireCnt = 0;
-            getProvince();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        requireCnt = 0;
+        getProvince();
         ListAdapter listAdapter = new ListAdapter(provinces);
         binding.lvProvince.setAdapter(listAdapter);
         /*设置点击监听*/
@@ -80,49 +74,35 @@ public class ProvinceListFragment extends Fragment {
 
     }
 
-    private void getProvince() throws JSONException {
-        if (requireCnt < 6) {
-            requireCnt++;
-            Toast.makeText(requireContext(), "数据拉取中，请等待", Toast.LENGTH_SHORT).show();
-        } else {
-            requireCnt++;
-            Toast.makeText(requireContext(), "网络请求失败，请检查网络", Toast.LENGTH_SHORT).show();
-        }
+    private void getProvince() {
+        toastIfo();
         if (findProvinceInDatabase()) {
             binding.lvProvince.setAdapter(new ListAdapter(provinces));
             return;
         }
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://guolin.tech/api/china/")
-                .build();
-        HttpService httpService = retrofit.create(HttpService.class);
-        Call<ResponseBody> call = httpService.getProvinces();
-        call.enqueue(new Callback<ResponseBody>() {
-            @SneakyThrows
+
+        /*利用请求工具类进行请求*/
+        Call<List<Province>> call = HttpUtil.Httpservice().getProvinces();
+
+        call.enqueue(new Callback<List<Province>>() {
             @Override
-            public void onResponse(@NotNull Call<ResponseBody> call, @NotNull Response<ResponseBody> response) {
+            public void onResponse(@NotNull Call<List<Province>> call, @NotNull Response<List<Province>> response) {
                 if (response.isSuccessful()) {
                     requireCnt = 0;
-                    try {
-                        String jsonBody = response.body().string();
-                        JSONArray jsonArray = new JSONArray(jsonBody);
-                        for (int i = 0; i < jsonArray.length(); i++) {
-                            JSONObject jsonObject = jsonArray.getJSONObject(i);
-                            Province province = new Province(jsonObject.getString("name"), jsonObject.getString("id"));
-                            provinces.add(province);
-                            province.save();
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    Objects.requireNonNull(getActivity()).runOnUiThread(() -> binding.lvProvince.setAdapter(new ListAdapter(provinces)));
+                    /*拿到retrofit内部转换好的对象*/
+                    provinces = response.body();
+
+                    Log.d("aaa", "onResponse: " + provinces.size());
+                    getActivity().runOnUiThread(() -> binding.lvProvince.setAdapter(new ListAdapter(provinces)));
                 }
             }
 
             @SneakyThrows
             @Override
-            public void onFailure(@NotNull Call<ResponseBody> call, @NotNull Throwable t) {
-                if (requireCnt < 10) getProvince();
+            public void onFailure(@NotNull Call<List<Province>> call, @NotNull Throwable t) {
+                if (requireCnt < 5) getProvince();
+                else
+                    Objects.requireNonNull(getActivity()).runOnUiThread(() -> Toast.makeText(requireContext(), "请求失败", Toast.LENGTH_SHORT).show());
             }
         });
     }
@@ -134,6 +114,17 @@ public class ProvinceListFragment extends Fragment {
             return true;
         }
         return false;
+    }
+
+    private void toastIfo() {
+        if (requireCnt < 6) {
+            requireCnt++;
+            Toast.makeText(requireContext(), "数据拉取中，请等待", Toast.LENGTH_SHORT).show();
+        } else {
+            requireCnt++;
+            Toast.makeText(requireContext(), "网络请求失败，请检查网络", Toast.LENGTH_SHORT).show();
+        }
+
     }
 
     public String getSelectProID() {

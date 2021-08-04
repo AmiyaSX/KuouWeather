@@ -1,17 +1,17 @@
 package com.example.kuouweather.bean;
 
+import com.google.gson.annotations.SerializedName;
+
 import org.litepal.crud.LitePalSupport;
 
 public class City extends LitePalSupport {
+    /*增加Gson转换注解*/
+    @SerializedName("name")
     private String cityName;
+    @SerializedName("id")
     private String cityID;
     private String proID;
 
-    public City(String cityName, String cityID, String proID) {
-        this.cityName = cityName;
-        this.cityID = cityID;
-        this.proID = proID;
-    }
 
     public String getCityName() {
         return cityName;

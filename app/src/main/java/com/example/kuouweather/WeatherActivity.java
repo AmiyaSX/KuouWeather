@@ -10,8 +10,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -24,8 +22,9 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.example.kuouweather.adapter.RecyclerViewAdapter;
 import com.example.kuouweather.bean.Weather;
+import com.example.kuouweather.util.HttpService;
+import com.example.kuouweather.util.HttpUtil;
 import com.github.rahatarmanahmed.cpv.CircularProgressView;
-import com.google.gson.Gson;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -43,30 +42,36 @@ import retrofit2.Retrofit;
 
 public class WeatherActivity extends FragmentActivity {
     private String weatherID;
+
     private String urlImage;
+
     private TextView title;
+
     private TextView time;
+
     private TextView temperature;
+
     private TextView weatherTxt;
+
     private TextView aqi;
+
     private TextView pm;
+
     private TextView comf;
+
     private TextView sport;
+
     private TextView cw;
+
     private int requireCnt;
+
     private RecyclerView recyclerView;
+
     private ImageView imageView;
+
     private ScrollView scrollView;
-    private CardView cardView;
-    private CardView cardForeCast;
+
     private CircularProgressView progressView;
-    private List<Weather.HeWeatherDTO.DailyForecastDTO> dailyForecasts;
-    String TAG = "aaa";
-    private final Handler handler = new Handler(msg -> {
-        Weather weather = (Weather) msg.obj;
-        showWeather(weather);
-        return false;
-    });
 
 
     @Override
@@ -74,7 +79,6 @@ public class WeatherActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_weather);
         initView();
-        Log.d(TAG, "onCreate: " + weatherID);
         loadImage();
         getWeather(weatherID);
 
@@ -91,20 +95,18 @@ public class WeatherActivity extends FragmentActivity {
         comf = findViewById(R.id.comf);
         sport = findViewById(R.id.sport);
         cw = findViewById(R.id.cw);
-//        listView = findViewById(R.id.lv_weather);
         Intent intent = getIntent();
         weatherID = intent.getStringExtra("weatherID");
         imageView = findViewById(R.id.bing_img);
         progressView = findViewById(R.id.progress_view);
         progressView.startAnimation();
-        cardView = findViewById(R.id.card_suggestion);
+        CardView cardView = findViewById(R.id.card_suggestion);
         recyclerView = findViewById(R.id.lv_weather);
         cardView.getBackground().setAlpha(100);
-        cardForeCast = findViewById(R.id.card);
+        CardView cardForeCast = findViewById(R.id.card);
         cardForeCast.getBackground().setAlpha(100);
         requireCnt = 0;
-//        ActionBar actionBar = getActionBar();
-//        actionBar.hide();
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Window window = getWindow();
             window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
@@ -123,48 +125,64 @@ public class WeatherActivity extends FragmentActivity {
     }
 
     private void loadImage() {
-        if (requireCnt < 6) {
-            requireCnt++;
-            Toast.makeText(this, "数据拉取中，请等待", Toast.LENGTH_SHORT).show();
-        } else {
-            requireCnt++;
-            Toast.makeText(this, "网络请求失败，请检查网络", Toast.LENGTH_SHORT).show();
-        }
+        toastIfo();
         /*拉取网络图片*/
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://guolin.tech/api/bing_pic/")
-                .build();
-        HttpService httpService = retrofit.create(HttpService.class);
-        Call<ResponseBody> call = httpService.getImage();
-        call.enqueue(new Callback<ResponseBody>() {
+        Call<String> call = HttpUtil.Httpservice().getImage();
+
+        call.enqueue(new Callback<String>() {
             @SneakyThrows
             @Override
-            public void onResponse(@NotNull Call<ResponseBody> call, @NotNull Response<ResponseBody> response) {
-                try {
-                    requireCnt = 0;
-                    urlImage = response.body().string();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+            public void onResponse(@NotNull Call<String> call, @NotNull Response<String> response) {
+                requireCnt = 0;
+                /*拿到retrofit内部转换好的对象*/
+                urlImage = response.body();
                 runOnUiThread(() -> {
                     try {
                         Glide.with(WeatherActivity.this).load(urlImage).into(imageView);
                     } catch (IllegalArgumentException e) {
-
+                        e.printStackTrace();
                     }
-
                 });
             }
 
             @Override
-            public void onFailure(@NotNull Call<ResponseBody> call, @NotNull Throwable t) {
-                Log.d(TAG, "onFailure: ");
+            public void onFailure(@NotNull Call<String> call, @NotNull Throwable t) {
                 if (requireCnt < 3) loadImage();
             }
         });
     }
 
     private void getWeather(String weatherID) {
+        toastIfo();
+
+        HashMap<String, String> hashMap = new HashMap<>();
+        hashMap.put("cityid", weatherID);
+        hashMap.put("key", getString(R.string.key));
+        /*利用请求工具类进行请求*/
+        Call<Weather> call = HttpUtil.Httpservice().getWeather(hashMap);
+
+        call.enqueue(new Callback<Weather>() {
+            @Override
+            public void onResponse(@NotNull Call<Weather> call, @NotNull Response<Weather> response) {
+                requireCnt = 0;
+
+                if (response.isSuccessful()) {
+                    /*回到主线程处理UI*/
+                    runOnUiThread(() -> {
+                        assert response.body() != null;
+                        showWeather(response.body());
+                    });
+                }
+            }
+
+            @Override
+            public void onFailure(@NotNull Call<Weather> call, @NotNull Throwable t) {
+                if (requireCnt < 3) getWeather(weatherID);
+            }
+        });
+    }
+
+    private void toastIfo() {
         if (requireCnt < 6) {
             requireCnt++;
             Toast.makeText(this, "数据拉取中，请等待", Toast.LENGTH_SHORT).show();
@@ -172,52 +190,11 @@ public class WeatherActivity extends FragmentActivity {
             requireCnt++;
             Toast.makeText(this, "网络请求失败，请检查网络", Toast.LENGTH_SHORT).show();
         }
-        Log.d(TAG, "getWeather: ");
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://guolin.tech/api/")
-                .build();
-        Log.d(TAG, "getWeather: " + "http://guolin.tech/api/weather?cityid=" + weatherID + getString(R.string.key));
-        HttpService httpService = retrofit.create(HttpService.class);
-        HashMap<String, String> hashMap = new HashMap<>();
-        hashMap.put("cityid", weatherID);
-        hashMap.put("key", getString(R.string.key));
-        Call<ResponseBody> call = httpService.getWeather(hashMap);
-        call.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(@NotNull Call<ResponseBody> call, @NotNull Response<ResponseBody> response) {
-                Log.d(TAG, "onResponse: " + response.code());
-                requireCnt = 0;
-                if (response.isSuccessful()) {
-                    try {
-                        assert response.body() != null;
-                        String jsonResponse = response.body().string();
-                        Log.d("aaa", "onResponse: " + jsonResponse);
-                        Gson gson = new Gson();
-                        Weather weather = gson.fromJson(jsonResponse, Weather.class);
-                        if (weather.getHeWeather() == null)
-                            Log.d(TAG, "onResponse: " + "gson.fromJson fail");
-                        Log.d(TAG, "onResponse: " + weather.getHeWeather().get(0).getBasic().getCid() + "  地点： " + weather.getHeWeather().get(0).getBasic().getLocation());
-                        Message message = new Message();
-                        message.obj = weather;
-                        handler.sendMessage(message);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(@NotNull Call<ResponseBody> call, @NotNull Throwable t) {
-                Log.d("aaa", "onFailure: " + "get weather");
-                if (requireCnt < 3) getWeather(weatherID);
-            }
-        });
     }
 
     @SuppressLint("SetTextI18n")
     private void showWeather(Weather weather) {
         Weather.HeWeatherDTO heWeather = weather.getHeWeather().get(0);
-        Log.d(TAG, "showWeather: ");
         scrollView.smoothScrollTo(0, 0);
         title.setText(heWeather.getBasic().getLocation());
         Date date = new Date();
@@ -229,11 +206,12 @@ public class WeatherActivity extends FragmentActivity {
         comf.setText("舒适度：" + heWeather.getSuggestion().getComf().getTxt());
         sport.setText("运动建议：" + heWeather.getSuggestion().getSport().getTxt());
         cw.setText("洗车指数：" + heWeather.getSuggestion().getCw().getTxt());
-        dailyForecasts = weather.getHeWeather().get(0).getDailyForecast();
+        List<Weather.HeWeatherDTO.DailyForecastDTO> dailyForecasts = weather.getHeWeather().get(0).getDailyForecast();
         recyclerView.setAdapter(new RecyclerViewAdapter(recyclerView, dailyForecasts));
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(linearLayoutManager);
         progressView.stopAnimation();
+
     }
 
 }
