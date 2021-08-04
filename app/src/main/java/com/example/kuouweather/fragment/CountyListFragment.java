@@ -29,6 +29,7 @@ import org.litepal.LitePal;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import lombok.SneakyThrows;
 import okhttp3.ResponseBody;
@@ -46,11 +47,16 @@ public class CountyListFragment extends Fragment {
     private int cnt = 0;
 
     public CountyListFragment() {
+
     }
 
-    public CountyListFragment(String selectCityID, String selectProID) {
-        this.selectCityID = selectCityID;
-        this.selectProID = selectProID;
+    public static CountyListFragment newInstance(String selectCityID, String selectProID) {
+        CountyListFragment countyListFragment = new CountyListFragment();
+        Bundle bundle = new Bundle();
+        bundle.putString("selectCityID", selectCityID);
+        bundle.putString("selectProID", selectProID);
+        countyListFragment.setArguments(bundle);
+        return countyListFragment;
     }
 
     private final Handler handler2 = new Handler(new Handler.Callback() {
@@ -67,6 +73,9 @@ public class CountyListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         Log.d("aaa", "onCreate:  CountyFragment");
+        assert getArguments() != null;
+        this.selectProID = getArguments().getString("selectProID");
+        this.selectCityID = getArguments().getString("selectCityID");
         super.onCreate(savedInstanceState);
 
     }
@@ -84,13 +93,22 @@ public class CountyListFragment extends Fragment {
     }
 
     private void getCounty() {
-        if (cnt<5)  {
+        if (cnt < 6) {
             cnt++;
-            Toast.makeText(requireContext(),"数据拉取中，请等待",Toast.LENGTH_SHORT).show();
-        }
-        else {
+            try {
+                Toast.makeText(requireContext(), "数据拉取中，请等待", Toast.LENGTH_SHORT).show();
+            } catch (IllegalStateException e) {
+                e.printStackTrace();
+            }
+
+        } else {
             cnt++;
-            Toast.makeText(requireContext(),"拉不到数据啊QAQ",Toast.LENGTH_SHORT).show();
+            try {
+                Toast.makeText(requireContext(), "网络请求失败，请检查网络", Toast.LENGTH_SHORT).show();
+            } catch (IllegalStateException e) {
+                e.printStackTrace();
+            }
+
         }
 
         if (getCountyInDatabase()) {
@@ -110,6 +128,7 @@ public class CountyListFragment extends Fragment {
             @Override
             public void onResponse(@NotNull Call<ResponseBody> call, @NotNull Response<ResponseBody> response) {
                 if (response.isSuccessful()) {
+                    cnt = 0;
                     assert response.body() != null;
                     String jsonResponse = response.body().string();
                     Log.d(TAG, "onResponse: " + jsonResponse);
@@ -129,8 +148,7 @@ public class CountyListFragment extends Fragment {
             @Override
             public void onFailure(@NotNull Call<ResponseBody> call, @NotNull Throwable t) {
                 Log.d(TAG, "onFailure: " + "getCounty");
-                Toast.makeText(requireContext(),"数据拉取失败，正在重新请求",Toast.LENGTH_SHORT).show();
-                getCounty();
+                if (cnt < 6) getCounty();
             }
         });
     }

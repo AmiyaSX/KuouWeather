@@ -1,37 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/card_forecast"
     android:layout_width="350dp"
     android:layout_height="550dp"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:alpha="100"
     android:layout_gravity="center_horizontal"
-    android:id="@+id/card_forecast"
+    android:alpha="100"
+    android:outlineAmbientShadowColor="@color/cardview_dark_background"
     android:outlineSpotShadowColor="@color/cardview_dark_background"
-    android:outlineAmbientShadowColor="@color/cardview_dark_background">
+    tools:targetApi="p">
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="30dp"
         android:text="  预报:"
-        android:textStyle="bold"
         android:textColor="@color/white"
-        android:textSize="20sp" />
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/gray"/>
+        android:background="@color/gray" />
+
     <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_marginTop="10dp"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:paddingLeft="7dp"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingLeft="7dp">
 
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/lv_weather"
-            android:alpha="100"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:alpha="100" />
 
     </LinearLayout>
 

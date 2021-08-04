@@ -28,6 +28,7 @@ import org.litepal.LitePal;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import lombok.SneakyThrows;
 import okhttp3.ResponseBody;
@@ -38,15 +39,23 @@ import retrofit2.Retrofit;
 
 public class CityListFragment extends Fragment {
     private FragmentCityListBinding binding;
-    private final String selectProID;
+    private String selectProID;
     private String selectCityID;
-    private final MainActivity.ChangeToCountyFragment changeToCountyFragment;
+    private int requireCnt;
+    private MainActivity.ChangeToCountyFragment changeToCountyFragment;
     private List<City> cities = new ArrayList<>();
     private int cnt = 0;
 
-    public CityListFragment(String selectProID, MainActivity.ChangeToCountyFragment changeToCountyFragment) {
-        this.selectProID = selectProID;
-        this.changeToCountyFragment = changeToCountyFragment;
+    public CityListFragment() {
+    }
+
+    public static CityListFragment newInstance(String selectProID, MainActivity.ChangeToCountyFragment changeToCountyFragment) {
+        CityListFragment cityListFragment = new CityListFragment();
+        Bundle bundle = new Bundle();
+        bundle.putString("selectProID", selectProID);
+        cityListFragment.setArguments(bundle);
+        cityListFragment.changeToCountyFragment = changeToCountyFragment;
+        return cityListFragment;
     }
 
     private final Handler handler1 = new Handler(new Handler.Callback() {
@@ -63,6 +72,7 @@ public class CityListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         Log.d("aaa", "onCreate:  CountyFragment");
+        this.selectProID = getArguments().getString("selectProID");
         super.onCreate(savedInstanceState);
 
     }
@@ -77,18 +87,28 @@ public class CityListFragment extends Fragment {
             selectCityID = cities.get(position).getCityID();
             changeToCountyFragment.showCountyListFragment();
         });
+        requireCnt = 0;
         getCity(selectProID);
         return binding.getRoot();
     }
 
     public void getCity(String id) {
-        if (cnt<5)  {
+        if (cnt < 6) {
             cnt++;
-            Toast.makeText(requireContext(),"数据拉取中，请等待",Toast.LENGTH_SHORT).show();
-        }
-        else {
+            try {
+                Toast.makeText(requireContext(), "数据拉取中，请等待", Toast.LENGTH_SHORT).show();
+            } catch (IllegalStateException e) {
+                e.printStackTrace();
+            }
+
+        } else {
             cnt++;
-            Toast.makeText(requireContext(),"拉不到数据啊QAQ",Toast.LENGTH_SHORT).show();
+            try {
+                Toast.makeText(requireContext(), "网络请求失败，请检查网络", Toast.LENGTH_SHORT).show();
+            } catch (IllegalStateException e) {
+                e.printStackTrace();
+            }
+
         }
         if (getCityInDatabase()) {
             binding.lvCity.setAdapter(new CityListAdapter(cities));
@@ -107,6 +127,7 @@ public class CityListFragment extends Fragment {
             @Override
             public void onResponse(@NotNull Call<ResponseBody> call, @NotNull Response<ResponseBody> response) {
                 if (response.isSuccessful()) {
+                    cnt = 0;
                     assert response.body() != null;
                     String jsonResponse = response.body().string();
                     Log.d(TAG, "onResponse: json" + jsonResponse + "  " + response.body().toString());
@@ -126,8 +147,7 @@ public class CityListFragment extends Fragment {
             @Override
             public void onFailure(@NotNull Call<ResponseBody> call, @NotNull Throwable t) {
                 Log.d("aaa", "onFailure: " + "get city");
-                Toast.makeText(requireContext(),"数据拉取失败，正在重新请求",Toast.LENGTH_SHORT).show();
-                getCity(selectProID);
+                if (cnt < 6) getCity(selectProID);
             }
         });
     }

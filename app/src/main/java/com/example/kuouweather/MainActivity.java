@@ -35,18 +35,14 @@ public class MainActivity extends FragmentActivity {
 
     private void showProvinceFragment() {
         FragmentTransaction ft = fm.beginTransaction();
-        provinceListFragment = new ProvinceListFragment(() -> {
+        provinceListFragment = ProvinceListFragment.newInstance(() -> {
             FragmentTransaction ft1 = fm.beginTransaction();
             ft1.hide(provinceListFragment);
-            cityListFragment = new CityListFragment(provinceListFragment.getSelectProID(), new ChangeToCountyFragment() {
-                @Override
-                public void showCountyListFragment() {
-                    FragmentTransaction ft1 = fm.beginTransaction();
-                    ft1.hide(cityListFragment);
-                    countyListFragment = new CountyListFragment(cityListFragment.getSelectCityID(), cityListFragment.getSelectProID());
-                    ft1.replace(R.id.content, countyListFragment, "CityListFragment").addToBackStack("").commit();
-                }
-
+            cityListFragment = CityListFragment.newInstance(provinceListFragment.getSelectProID(), () -> {
+                FragmentTransaction ft11 = fm.beginTransaction();
+                ft11.hide(cityListFragment);
+                countyListFragment = CountyListFragment.newInstance(cityListFragment.getSelectCityID(), cityListFragment.getSelectProID());
+                ft11.replace(R.id.content, countyListFragment, "CityListFragment").addToBackStack("").commit();
             });
             ft1.replace(R.id.content, cityListFragment, "CityListFragment").addToBackStack("").commit();
         });

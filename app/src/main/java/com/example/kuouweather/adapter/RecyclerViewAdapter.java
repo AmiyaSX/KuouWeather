@@ -21,26 +21,26 @@ import java.util.List;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.RecyclerHolder> {
     private final Context context;
-    String TAG = "aaa";
     private final List<Weather.HeWeatherDTO.DailyForecastDTO> dailyForecastList = new ArrayList<>();
 
     public RecyclerViewAdapter(RecyclerView recyclerView, List<Weather.HeWeatherDTO.DailyForecastDTO> data) {
         this.context = recyclerView.getContext();
         setData(data);
     }
+
     public void setData(List<Weather.HeWeatherDTO.DailyForecastDTO> data) {
         if (null != data) {
             this.dailyForecastList.clear();
             this.dailyForecastList.addAll(data);
-            Log.d(TAG, "setData: " + dailyForecastList.size());
             notifyDataSetChanged();
         }
     }
+
     @NonNull
     @NotNull
     @Override
     public RecyclerHolder onCreateViewHolder(@NonNull @NotNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.forecast_item,parent,false);
+        View view = LayoutInflater.from(context).inflate(R.layout.forecast_item, parent, false);
 
         return new RecyclerHolder(view);
     }
@@ -64,6 +64,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         TextView tvWeather;
         TextView tvMax;
         TextView tvMin;
+
         public RecyclerHolder(@NonNull @NotNull View itemView) {
             super(itemView);
             tvDate = itemView.findViewById(R.id.date);

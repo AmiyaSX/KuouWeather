@@ -1,26 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="320dp"
-    android:layout_marginTop="50dp"
-    android:layout_gravity="center_horizontal"
-    android:layout_height="250dp"
-    android:id="@+id/card"
-    app:cardElevation="5dp"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    app:cardCornerRadius="20dp"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/card"
+    android:layout_width="320dp"
+    android:layout_height="250dp"
+    android:layout_gravity="center_horizontal"
+    android:layout_marginTop="50dp"
+    android:alpha="250"
     android:orientation="vertical"
-    android:alpha="250">
+    app:cardCornerRadius="20dp"
+    app:cardElevation="5dp">
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:background="@color/blue"
-        android:text="空气质量"
+        android:gravity="center_horizontal"
         android:paddingTop="5dp"
+        android:text="空气质量"
         android:textAlignment="center"
         android:textColor="@color/white"
-        android:textSize="20sp"
-        android:gravity="center_horizontal" />
+        android:textSize="20sp" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -42,10 +43,10 @@
                 android:layout_weight="8"
                 android:gravity="center_horizontal"
                 android:text="100"
-                android:textStyle="italic"
                 android:textAlignment="center"
                 android:textColor="@color/black"
                 android:textSize="60sp"
+                android:textStyle="italic"
                 tools:ignore="NestedWeights" />
 
             <TextView
@@ -54,9 +55,9 @@
                 android:layout_weight="7"
                 android:gravity="center_horizontal"
                 android:text="AQI指数"
-                android:textStyle="bold"
                 android:textAlignment="center"
-                android:textColor="@color/black" />
+                android:textColor="@color/black"
+                android:textStyle="bold" />
 
 
         </LinearLayout>
@@ -74,10 +75,10 @@
                 android:layout_weight="8"
                 android:gravity="center_horizontal"
                 android:text="100"
-                android:textStyle="italic"
                 android:textAlignment="center"
                 android:textColor="@color/black"
                 android:textSize="60sp"
+                android:textStyle="italic"
                 tools:ignore="NestedWeights" />
 
             <TextView
@@ -86,9 +87,9 @@
                 android:layout_weight="7"
                 android:gravity="center_horizontal"
                 android:text="PM2.5指数"
-                android:textStyle="bold"
                 android:textAlignment="center"
-                android:textColor="@color/black" />
+                android:textColor="@color/black"
+                android:textStyle="bold" />
 
 
         </LinearLayout>

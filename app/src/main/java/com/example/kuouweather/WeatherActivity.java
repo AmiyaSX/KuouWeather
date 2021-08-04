@@ -19,6 +19,7 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.kuouweather.adapter.RecyclerViewAdapter;
@@ -52,6 +53,7 @@ public class WeatherActivity extends FragmentActivity {
     private TextView comf;
     private TextView sport;
     private TextView cw;
+    private int requireCnt;
     private RecyclerView recyclerView;
     private ImageView imageView;
     private ScrollView scrollView;
@@ -100,6 +102,7 @@ public class WeatherActivity extends FragmentActivity {
         cardView.getBackground().setAlpha(100);
         cardForeCast = findViewById(R.id.card);
         cardForeCast.getBackground().setAlpha(100);
+        requireCnt = 0;
 //        ActionBar actionBar = getActionBar();
 //        actionBar.hide();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -120,6 +123,13 @@ public class WeatherActivity extends FragmentActivity {
     }
 
     private void loadImage() {
+        if (requireCnt < 6) {
+            requireCnt++;
+            Toast.makeText(this, "数据拉取中，请等待", Toast.LENGTH_SHORT).show();
+        } else {
+            requireCnt++;
+            Toast.makeText(this, "网络请求失败，请检查网络", Toast.LENGTH_SHORT).show();
+        }
         /*拉取网络图片*/
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("http://guolin.tech/api/bing_pic/")
@@ -131,22 +141,37 @@ public class WeatherActivity extends FragmentActivity {
             @Override
             public void onResponse(@NotNull Call<ResponseBody> call, @NotNull Response<ResponseBody> response) {
                 try {
+                    requireCnt = 0;
                     urlImage = response.body().string();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                runOnUiThread(() -> Glide.with(WeatherActivity.this).load(urlImage).into(imageView));
+                runOnUiThread(() -> {
+                    try {
+                        Glide.with(WeatherActivity.this).load(urlImage).into(imageView);
+                    } catch (IllegalArgumentException e) {
+
+                    }
+
+                });
             }
 
             @Override
             public void onFailure(@NotNull Call<ResponseBody> call, @NotNull Throwable t) {
                 Log.d(TAG, "onFailure: ");
-                loadImage();
+                if (requireCnt < 3) loadImage();
             }
         });
     }
 
     private void getWeather(String weatherID) {
+        if (requireCnt < 6) {
+            requireCnt++;
+            Toast.makeText(this, "数据拉取中，请等待", Toast.LENGTH_SHORT).show();
+        } else {
+            requireCnt++;
+            Toast.makeText(this, "网络请求失败，请检查网络", Toast.LENGTH_SHORT).show();
+        }
         Log.d(TAG, "getWeather: ");
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("http://guolin.tech/api/")
@@ -161,6 +186,7 @@ public class WeatherActivity extends FragmentActivity {
             @Override
             public void onResponse(@NotNull Call<ResponseBody> call, @NotNull Response<ResponseBody> response) {
                 Log.d(TAG, "onResponse: " + response.code());
+                requireCnt = 0;
                 if (response.isSuccessful()) {
                     try {
                         assert response.body() != null;
@@ -183,7 +209,7 @@ public class WeatherActivity extends FragmentActivity {
             @Override
             public void onFailure(@NotNull Call<ResponseBody> call, @NotNull Throwable t) {
                 Log.d("aaa", "onFailure: " + "get weather");
-                getWeather(weatherID);
+                if (requireCnt < 3) getWeather(weatherID);
             }
         });
     }
@@ -204,7 +230,7 @@ public class WeatherActivity extends FragmentActivity {
         sport.setText("运动建议：" + heWeather.getSuggestion().getSport().getTxt());
         cw.setText("洗车指数：" + heWeather.getSuggestion().getCw().getTxt());
         dailyForecasts = weather.getHeWeather().get(0).getDailyForecast();
-        recyclerView.setAdapter(new RecyclerViewAdapter(recyclerView,dailyForecasts));
+        recyclerView.setAdapter(new RecyclerViewAdapter(recyclerView, dailyForecasts));
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(linearLayoutManager);
         progressView.stopAnimation();
